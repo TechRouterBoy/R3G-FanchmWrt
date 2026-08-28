@@ -1,5 +1,4 @@
-src-git fanchmwrt https://github.com/fanchmwrt/fanchmwrt-packages
-src-git mt76_closed https://github.com/hanwckf/mt76-openwrt;mt7621
-src-git luci https://github.com/openwrt/luci
-src-git openwrt https://github.com/openwrt/packages
-src-git small https://github.com/kenzok8/small
+src-git packages https://github.com/openwrt/packages.git
+src-git luci https://github.com/openwrt/luci.git
+src-git routing https://github.com/openwrt/routing.git
+src-git telephony https://github.com/openwrt/telephony.git
