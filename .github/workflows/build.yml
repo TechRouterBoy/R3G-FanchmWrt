@@ -6,58 +6,55 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu‑22.04
+    runs-on: ubuntu-22.04
     steps:
       - name: 获取仓库文件
         uses: actions/checkout@main
 
       - name: 安装编译需要的工具
         run: |
-          sudo apt‑get update
-          sudo apt‑get install build‑essential gcc g++ binutils flex bison gawk autoconf automake libtool make libncurses‑dev git gettext libssl‑dev wget unzip curl
+          sudo apt-get update
+          sudo apt-get install build-essential gcc g++ binutils bzip2 flex python3 perl make findutils grep diff unzip gawk gettext subversion git
 
       - name: 下载FanchmWrt官方源码
         run: |
-          git clone https://github.com/fanchmwrt/fanchmwrt‑snapshot openwrt
+          git clone https://github.com/fanchm/fanchmwrt.git openwrt
           cd openwrt
           cp ../feeds.conf.default ./
+          cp ../diy-part1.sh ./
+          cp ../diy-part2.sh ./
 
       - name: 运行第一部分自定义脚本
         run: |
-          cd $GITHUB_WORKSPACE
-          chmod +x ./diy‑part1.sh
-          bash ./diy‑part1.sh
+          cd $GITHUB_WORKSPACE/openwrt
+          chmod +x ./diy-part1.sh
+          ./diy-part1.sh
 
-      - name: 更新插件源
+      - name: 更新软件源feeds
         run: |
           cd openwrt
           ./scripts/feeds update -a
-
-      - name: 安装插件源
-        run: |
-          cd openwrt
           ./scripts/feeds install -a
 
       - name: 运行第二部分自定义脚本
         run: |
-          cd $GITHUB_WORKSPACE
-          chmod +x ./diy‑part2.sh
-          bash ./diy‑part2.sh
+          cd openwrt
+          chmod +x ./diy-part2.sh
+          ./diy-part2.sh
 
-      - name: 载入小米R3G配置
+      - name: 生成配置文件
         run: |
           cd openwrt
-          cp ../config/r3g.config .config
-          make defconfig
+          cp ../.config ./
 
-      - name: 下载软件包+编译固件
+      - name: 开始编译固件
         run: |
           cd openwrt
-          make download -j$(nproc)
+          make -j$(nproc) download
           make -j$(nproc)
 
-      - name: 上传编译好的固件供下载
-        uses: actions/upload‑artifact@main
+      - name: 上传编译好的固件
+        uses: actions/upload-artifact@v4
         with:
-          name: firmware
-          path: openwrt/bin/targets/**/*.bin
+          name: R3G‑firmware
+          path: openwrt/bin/targets/*/*/*.bin
