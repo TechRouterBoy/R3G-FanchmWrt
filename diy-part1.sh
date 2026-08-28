@@ -1,6 +1,12 @@
 #!/bin/bash
 cd openwrt
-# 修改路由器后台IP为192.168.5.1
-sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generate
-# 屏蔽系统自带的开源mt76无线驱动
-sed -i '/mt76/d' package/kernel/linux/modules/wireless.mk
+
+#删除开源无线驱动，替换hanwckf闭源驱动
+rm -rf package/feeds/openwrt/mt76
+git clone https://github.com/hanwckf/mt76‑openwrt package/mt76
+wget https://raw.githubusercontent.com/sonyxl1/Xiaomi‑R3G/master/mt7621.conf -O package/mt76/src/mt7621.conf
+
+# 此处把之前报错的wireless.mk那一行已经彻底删掉，不再执行
+
+cd ..
+
