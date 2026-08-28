@@ -1,0 +1,62 @@
+name: FanchmWrt-R3G闭源WiFi-USB-4G-TTYD-DDNSTO
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: 获取仓库文件
+        uses: actions/checkout@v4
+
+      - name: 安装编译需要的工具
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python3-setuptools unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils
+
+      - name: 下载FanchmWrt官方源码
+        run: |
+          git clone https://github.com/fanchmwrt/fanchmwrt-snapshot openwrt
+          cd openwrt
+          cp ../feeds.conf.default ./
+
+      - name: 运行第一部分自定义脚本
+        run: |
+          chmod +x ../diy-part1.sh
+          ../diy-part1.sh
+
+      - name: 更新插件源
+        run: |
+          cd openwrt
+          ./scripts/feeds update -a
+
+      - name: 安装插件源
+        run: |
+          cd openwrt
+          ./scripts/feeds install -a
+
+      - name: 运行第二部分自定义脚本
+        run: |
+          chmod +x ../diy-part2.sh
+          ../diy-part2.sh
+
+      - name: 载入小米R3G配置
+        run: |
+          cd openwrt
+          cp ../config/r3g.config .config
+          make defconfig
+
+      - name: 下载软件包+编译固件
+        run: |
+          cd openwrt
+          make -j$(nproc) download
+          make -j$(nproc)
+
+      - name: 上传编译好的固件供下载
+        uses: actions/upload-artifact@v4
+        with:
+          name: R3G固件
+          path: openwrt/bin/targets/ramips/mt7621/*.bin
