@@ -25,8 +25,9 @@ jobs:
 
       - name: 运行第一部分自定义脚本
         run: |
-          chmod +x ../diy-part1.sh
-          ../diy-part1.sh
+          cd $GITHUB_WORKSPACE
+          chmod +x ./diy-part1.sh
+          bash ./diy-part1.sh
 
       - name: 更新插件源
         run: |
@@ -40,8 +41,9 @@ jobs:
 
       - name: 运行第二部分自定义脚本
         run: |
-          chmod +x ../diy-part2.sh
-          ../diy-part2.sh
+          cd $GITHUB_WORKSPACE
+          chmod +x ./diy-part2.sh
+          bash ./diy-part2.sh
 
       - name: 载入小米R3G配置
         run: |
